@@ -8,7 +8,15 @@ export class App {
   async run() {
     try {
       const targetDirs = process.argv.slice(2);
-      const header = ['ファイル', 'カメラ', 'レンズ', '焦点距離'];
+      const header = [
+        'ファイル',
+        'カメラ',
+        'レンズ',
+        '焦点距離[mm]',
+        'ISO 感度',
+        'シャッタースピード[s]',
+        '絞り',
+      ];
       console.log(header.join(','));
 
       await Promise.all(targetDirs.map((d) => this.scanDirectoryRecursive(d)));
@@ -23,18 +31,24 @@ export class App {
 
   private async readPhotoInfo(filePath: string) {
     const tags = await exiftool.read(filePath);
-    const camera = [tags?.Model].filter(Boolean).join(' ').trim() || null;
-    const lens = tags?.LensModel || tags?.LensInfo || null;
-    const focalLength = tags?.FocalLength || null;
+    const camera = tags?.Model || '-';
+    const lens = tags?.LensModel || tags?.LensInfo || '-';
+    const focalLength = tags?.FocalLength || '-';
+    const iso = tags?.ISO || '-';
+    const shutterSpeed = tags?.ShutterSpeed || '-';
+    const aperture = tags?.Aperture || '-';
     // const focalLength35mm = tags?.FocalLengthIn35mmFormat
     //   ? `${tags.FocalLengthIn35mmFormat}mm`
     //   : null;
 
     const row = [
       `"${filePath}"`,
-      `"${camera ?? '-'}"`,
-      `"${lens ?? '-'}"`,
-      `"${focalLength ?? '-'}"`,
+      `"${camera}"`,
+      `"${lens}"`,
+      `"${focalLength}"`,
+      `"${iso}"`,
+      `"${shutterSpeed}"`,
+      `"${aperture}"`,
     ];
     console.log(row.join(','));
   }
